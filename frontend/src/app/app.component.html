@@ -1,0 +1,96 @@
+<div class="min-h-screen bg-gradient-to-b from-white to-green-50 flex flex-col items-center justify-center px-4 py-8">
+  <!-- Encabezado -->
+  <div class="text-center mb-8">
+    <div class="inline-flex items-center justify-center p-3 bg-green-100 rounded-full mb-4">
+      <span class="text-green-600 text-3xl">🧠</span>
+    </div>
+    <h1 class="text-4xl font-bold mb-2">
+      Clasificador de <span class="text-green-600">Basura ♻️</span>
+    </h1>
+    <p class="text-gray-600 text-lg max-w-2xl mx-auto">
+      Utiliza inteligencia artificial para clasificar automáticamente diferentes tipos de residuos y contribuir al reciclaje responsable
+    </p>
+  </div>
+
+  <!-- Clasificación completada -->
+   @if (classificationResult) {
+    <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md text-center animate-fade-in">
+        <div class="mb-4">
+        <div class="w-16 h-16 mx-auto rounded-full bg-green-100 flex items-center justify-center text-green-600 text-3xl">🧪</div>
+        </div>
+        <h2 class="text-2xl font-bold capitalize">{{ classificationResult }}</h2>
+        <p class="text-gray-600 mb-4">{{ classificationResult }} reciclable</p>
+
+        <div class="text-sm text-gray-500 mb-1">Confianza:</div>
+        <div class="w-full bg-gray-200 h-2 rounded-full overflow-hidden mb-4">
+        <div class="bg-green-500 h-2 transition-all duration-500" [style.width.%]="confidence"></div>
+        </div>
+        <div class="text-sm font-medium text-green-600">{{ confidence | number : '1.0-0' }}%</div>
+
+        <button (click)="nuevaClasificacion()" class="mt-6 px-4 py-2 border border-gray-400 rounded hover:bg-gray-100 transition">
+        Nueva Clasificación
+        </button>
+    </div>
+   }
+
+
+  <!-- Subida de imagen -->
+@if (!classificationResult) {
+  <div class="bg-white shadow-lg rounded-xl p-8 w-full max-w-xl">
+    <h2 class="text-xl font-semibold text-center mb-2">Subir Imagen</h2>
+    <p class="text-center text-gray-500 mb-6">Selecciona una imagen de residuos para clasificar</p>
+
+    <!-- Previsualización -->
+    @if (previewUrl) {
+    <div class="relative mb-4">
+      <img [src]="previewUrl" alt="Preview" class="rounded-lg w-full max-h-64 object-contain border" />
+      <div class="absolute inset-0 flex items-center justify-center bg-opacity-50 hover:bg-opacity-80 transition-opacity">
+        <button (click)="removeImage()" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm">
+          ✖ Remover
+        </button>
+      </div>
+      <div class="mt-2 text-sm text-center text-gray-500">
+        {{ selectedFile?.name }} ({{ (selectedFile?.size || 0) / 1024 / 1024 | number:'1.2-2' }} MB)
+      </div>
+    </div>
+    }
+
+    <!-- intento de drag & drop -->
+    @if (!previewUrl) {
+    <div class="border-2 border-dashed p-6 rounded-lg text-center bg-gradient-to-br from-white to-green-50">
+      <input type="file" accept="image/*" (change)="onFileSelected($event)" hidden #fileInput>
+      <p class="text-gray-700 font-medium mb-2">Arrastra una imagen o haz clic para seleccionar</p>
+      <p class="text-sm text-gray-500 mb-2">Formatos soportados: JPEG, PNG, GIF, BMP, WebP</p>
+      <p class="text-xs text-gray-400 mb-4">Tamaño máximo: 10MB</p>
+      <button (click)="fileInput.click()" class="bg-white border border-gray-300 px-4 py-2 rounded-md hover:border-green-600 transition">
+        Seleccionar imagen
+      </button>
+    </div>
+    }
+
+    @if (selectedFile) {
+    <div class="text-center mt-6">
+      <button
+        class="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition"
+        (click)="classifyImage()"
+        [disabled]="isClassifying"
+      >
+      @if (!isClassifying) {
+        <span>🧠 Clasificar Imagen</span>
+      }
+      @if (isClassifying) {
+        <span >⏳ Clasificando...</span>
+      }
+      </button>
+    </div>
+    }
+  </div>
+
+}
+
+
+  <!-- Footer -->
+  <p class="text-sm text-gray-400 mt-12">
+    Tecnología de clasificación basada en redes neuronales convolucionales (CNN)
+  </p>
+</div>
