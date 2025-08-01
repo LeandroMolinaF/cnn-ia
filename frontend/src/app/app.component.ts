@@ -1,5 +1,6 @@
 import { DecimalPipe } from '@angular/common';
 import { Component } from '@angular/core';
+import { CnnService } from './services/cnn.service';
 
 @Component({
   selector: 'app-root',
@@ -16,6 +17,8 @@ export class AppComponent {
   isClassifying = false;
   classificationResult: string | null = null;
   confidence: number = 0;
+
+  constructor(private cnnService: CnnService) {}
 
   onFileSelected(event: Event) {
     const file = (event.target as HTMLInputElement).files?.[0];
@@ -40,29 +43,25 @@ export class AppComponent {
     this.confidence = 0;
   }
 
-  async classifyImage() {
+  classifyImage() {
     if (!this.selectedFile) return;
 
     this.isClassifying = true;
 
-    // Simulación de respuesta, hay que implementar coso de fastapi
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
-    const resultados = [
-      'Papel', 'Cartón', 'Orgánico', 'Metal', 'Plástico',
-      'Vidrio Verde', 'Vidrio Marrón', 'Vidrio Blanco',
-      'Ropa', 'Zapatos', 'Baterías', 'Basura General'
-    ];
-
-    const random = Math.floor(Math.random() * resultados.length);
-    const randomConfidence = 70 + Math.random() * 30;
-
-    this.classificationResult = resultados[random];
-    this.confidence = randomConfidence;
-    this.isClassifying = false;
+    this.cnnService.classifyImage(this.selectedFile).subscribe({
+      next: (res) => {
+        this.classificationResult = res.class;
+        this.confidence = res.confidence * 100; 
+        this.isClassifying = false;
+      },
+      error: (err) => {
+        console.error('Error al clasificar la imagen:', err);
+        this.isClassifying = false;
+      }
+    });
   }
 
-  nuevaClasificacion() {
+  newClasificacion() {
     this.removeImage();
   }
 }
